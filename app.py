@@ -1,55 +1,55 @@
-MENU_PROMPT = "\nEnter 'a' to add a movie, 'l' to see your movies, 'f' to find a movie by title, or 'q' to quit: "
-movies = []
+from utils import database
 
 
-def add_movie():
-    title = input("Enter the movie title: ")
-    director = input("Enter the movie director: ")
-    year = input("Enter the movie release year: ")
-
-    movies.append({
-        'title': title,
-        'director': director,
-        'year': year
-    })
-
-
-def show_movies():
-    for movie in movies:
-        print_movie(movie)
-
-
-def print_movie(movie):
-    print(f"Title: {movie['title']}")
-    print(f"Director: {movie['director']}")
-    print(f"Release year: {movie['year']}")
-
-
-def find_movie():
-    search_title = input("Enter movie title you're looking for: ")
-
-    for movie in movies:
-        if movie["title"] == search_title:
-            print_movie(movie)
-
-
-user_options = {
-    "a": add_movie,
-    "l": show_movies,
-    "f": find_movie
-}
+USER_CHOICE = """
+Enter:
+'a' to add a new book
+'l' to list all books
+'r' to mark a book as read
+'d' to delete a book
+'q' to quit
+Your choice: """
 
 
 def menu():
-    selection = input(MENU_PROMPT)
-    while selection != 'q':
-        if selection in user_options:
-            selected_function = user_options[selection]
-            selected_function()
-        else:
-            print('Unknown command. Please try again.')
+    database.create_book_table()
+    user_input = input(USER_CHOICE)
+    while user_input != 'q':
+        if user_input == 'a':
+            prompt_add_book()
+        elif user_input == 'l':
+            list_books()
+        elif user_input == 'r':
+            prompt_read_book()
+        elif user_input == 'd':
+            prompt_delete_book()
 
-        selection = input(MENU_PROMPT)
+        user_input = input(USER_CHOICE)
+
+
+def prompt_add_book():
+    name = input('Enter the new book name: ')
+    author = input('Enter the new book author: ')
+
+    database.insert_book(name, author)
+
+
+def list_books():
+    for book in database.get_all_books():
+        read = 'YES' if book[3] else 'NO'  # book[3] will be a falsy value (0) if not read
+        print(f'{book[1]} by {book[2]} — Read: {read}')
+
+
+def prompt_read_book():
+    name = input('Enter the name of the book you just finished reading: ')
+
+    database.mark_book_as_read(name)
+
+
+def prompt_delete_book():
+    name = input('Enter the name of the book you wish to delete: ')
+
+    database.delete_book(name)
 
 
 menu()
